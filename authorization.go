@@ -21,19 +21,20 @@ func authorization() {
 	log.Println("check the permission.")
 
 	nameTranslated := md5Translate(parseKey())
-	crackDebug("translated key:%v\n", nameTranslated)
+	crackInfo("translated key:%v\n", nameTranslated)
 	for _, key := range keys {
 		if key == nameTranslated {
 			log.Println("permission check successfully.")
 			return
 		}
 	}
+
 	log.Println("permission check failed.")
 	os.Exit(0)
 }
 func parseKey() string {
 	flag.Parse()
-	crackDebug("input key:%s\n", *key)
+	crackInfo("input key:%s\n", *key)
 	return *key
 }
 func md5Translate(name string) string {

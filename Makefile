@@ -14,7 +14,6 @@ syso:
 pack:
 	go-bindata -o=edpa.go edpa.exe
 
-run:export CRACK_DEBUG=1
 run:
 	$(bin) -key taozhang8
 

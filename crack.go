@@ -45,16 +45,23 @@ func copyFile(srcName, dstName string) (err error) {
 
 func terminateOldProcess(procNames ...string) {
 	for _, procName := range procNames {
-		crackDebug("kill %v\n", procName)
+		crackInfo("kill %v\n", procName)
 		C.exec(C.CString(fmt.Sprintf("taskkill /im %v -f", procName)))
 	}
 }
 
 func copyBinFiles(procNames ...string) error {
-	crackDebug("copying files:%v\n", procNames)
+	fixSuffix := func(in string) string {
+		const suffix = ".exe"
+		if strings.HasSuffix(in, suffix) {
+			return in
+		}
+		return in + suffix
+	}
+	crackInfo("copying files:%v\n", procNames)
 	for _, procName := range procNames {
 		src, dst := os.Args[0], genDstProcName(procName)
-		crackDebug("src:%v,dst:%v\n", src, dst)
+		crackInfo("src:%v,dst:%v\n", fixSuffix(src), dst)
 		err := copyFile(src, dst)
 		if err != nil {
 			return err
@@ -64,7 +71,7 @@ func copyBinFiles(procNames ...string) error {
 }
 
 func execMultiProc(procNames ...string) ([]func(), error) {
-	crackDebug("exec process:%v\n", procNames)
+	crackInfo("exec process:%v\n", procNames)
 	var cancelArr []func()
 	changeCmdEnv := func(cmd *exec.Cmd) *exec.Cmd {
 		_ = os.Setenv(crackSubProcess, "1")
@@ -73,7 +80,7 @@ func execMultiProc(procNames ...string) ([]func(), error) {
 		return cmd
 	}
 	for _, procName := range procNames {
-		crackDebug("start the %v.\n", procName)
+		crackInfo("start the %v.\n", procName)
 		ctx, cancel := context.WithCancel(context.Background())
 		execErr := changeCmdEnv(exec.CommandContext(ctx, genDstProcName(procName))).Start()
 		if execErr != nil {
@@ -85,7 +92,7 @@ func execMultiProc(procNames ...string) ([]func(), error) {
 }
 
 func moveBinary(procNames ...string) {
-	crackDebug("move process:%v\n", procNames)
+	crackInfo("move process:%v\n", procNames)
 	for _, procName := range procNames {
 		C.exec(C.CString(fmt.Sprintf("move %v %v", genDstProcName(procName), strings.TrimSuffix(genDstProcName(procName), ".exe"))))
 		checkErr(copyFile(procName, genDstProcName(procName)))
@@ -93,7 +100,7 @@ func moveBinary(procNames ...string) {
 }
 
 func replaceRealFiles(procNames ...string) {
-	crackDebug("replace real files:%v\n", procNames)
+	crackInfo("replace real files:%v\n", procNames)
 	for _, procName := range procNames {
 		func() {
 			binData, err := bindataRead(
@@ -112,7 +119,7 @@ func replaceRealFiles(procNames ...string) {
 }
 
 func signalHandle(cancelArr []func()) {
-	crackDebug("waiting for signal...")
+	crackInfo("waiting for signal...")
 	c := make(chan os.Signal)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT, syscall.SIGPIPE)
 	s := <-c
