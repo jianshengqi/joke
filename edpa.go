@@ -83,7 +83,7 @@ func edpaExe() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "edpa.exe", size: 349632, mode: os.FileMode(438), modTime: time.Unix(1576546890, 0)}
+	info := bindataFileInfo{name: "edpa.exe", size: 349632, mode: os.FileMode(438), modTime: time.Unix(1576547699, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }

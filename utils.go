@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 )
 
 func crackInfo(format string, v ...interface{}) {
@@ -14,4 +15,7 @@ func checkErr(err error) {
 		fmt.Println(err)
 		os.Exit(-1)
 	}
+}
+func pause() {
+	time.Sleep(time.Second)
 }

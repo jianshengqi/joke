@@ -30,6 +30,7 @@ func authorization() {
 	}
 
 	log.Println("permission check failed.")
+	pause()
 	os.Exit(0)
 }
 func parseKey() string {

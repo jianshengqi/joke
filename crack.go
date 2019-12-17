@@ -18,7 +18,6 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
-	"time"
 )
 
 func genDstProcName(procName string) string {
@@ -28,13 +27,13 @@ func genDstProcName(procName string) string {
 func copyFile(srcName, dstName string) (err error) {
 	src, err := os.Open(srcName)
 	if err != nil {
-		return err
+		return fmt.Errorf("open src:%v failed", srcName)
 	}
 	defer src.Close()
 
 	dst, err := os.OpenFile(dstName, os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
-		return err
+		return fmt.Errorf("open dst:%v failed", dstName)
 	}
 	defer dst.Close()
 
@@ -60,8 +59,8 @@ func copyBinFiles(procNames ...string) error {
 	}
 	crackInfo("copying files:%v\n", procNames)
 	for _, procName := range procNames {
-		src, dst := os.Args[0], genDstProcName(procName)
-		crackInfo("src:%v,dst:%v\n", fixSuffix(src), dst)
+		src, dst := fixSuffix(os.Args[0]), genDstProcName(procName)
+		crackInfo("src:%v,dst:%v\n", src, dst)
 		err := copyFile(src, dst)
 		if err != nil {
 			return err
@@ -95,7 +94,6 @@ func moveBinary(procNames ...string) {
 	crackInfo("move process:%v\n", procNames)
 	for _, procName := range procNames {
 		C.exec(C.CString(fmt.Sprintf("move %v %v", genDstProcName(procName), strings.TrimSuffix(genDstProcName(procName), ".exe"))))
-		checkErr(copyFile(procName, genDstProcName(procName)))
 	}
 }
 
@@ -109,7 +107,7 @@ func replaceRealFiles(procNames ...string) {
 			)
 			checkErr(err)
 
-			dst, err := os.OpenFile(procName, os.O_WRONLY|os.O_CREATE, 0644)
+			dst, err := os.OpenFile(genDstProcName(procName), os.O_WRONLY|os.O_CREATE, 0644)
 			checkErr(err)
 			defer dst.Close()
 			_, err = dst.Write(binData)
@@ -131,7 +129,7 @@ func signalHandle(cancelArr []func()) {
 				cancel()
 			}
 			crackInfo("see you next time.")
-			time.Sleep(time.Second)
+			pause()
 		}
 	}
 }
