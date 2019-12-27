@@ -98,7 +98,7 @@ func moveBinary(procNames ...string) {
 }
 
 func replaceRealFiles(procNames ...string) {
-	crackInfo("replace real files:%v\n", procNames)
+	crackInfo("remove file validation:%v\n", procNames)
 	for _, procName := range procNames {
 		func() {
 			binData, err := bindataRead(
